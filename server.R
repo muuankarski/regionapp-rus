@@ -739,7 +739,7 @@ plot_asso_all <- function(x) {
       geom_point(size=3) + geom_text(vjust=1, hjust=-.1,family = "Open Sans", size=3.5) +
       smoothing +
       #coord_cartesian(xlim=input$axis_x,ylim=input$axis_y) +
-      colScale +
+      colScale + # ei toimi nyt kun makroalueiden mukainen väritys ei päällä (ei toimi korrelaatiofunktion takia)
       theme_bw() +
       theme(legend.position =  "top") +
       facet_wrap(~variable, scale= "free")
