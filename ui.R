@@ -81,18 +81,14 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
                                
                                tags$head(
                                  # Include our custom CSS
-                                 includeCSS("styles.css"),
-                                 #Hide the red error messages!!!
-                                                                   tags$style(type="text/css",
-                                                                              ".shiny-output-error { visibility: hidden; }",
-                                                                              ".shiny-output-error:before { visibility: hidden; }"
-                                                                              )
+                                 includeCSS("styles.css")
+
                                  
                                ),
                                
                                tabsetPanel(type= "tabs", position= "above",
-                                 tabPanel("Single year plot", plotOutput("plot_asso", width="100%", height = "900px")),
-                                 tabPanel("All years plot", plotOutput("plot_asso_all", width="100%", height = "900px"))
+                                 tabPanel("Single year plot", plotOutput("plot_asso", width="100%", height = "750px")),
+                                 tabPanel("All years plot", plotOutput("plot_asso_all", width="100%", height = "750px"))
                                ),
                            
                            

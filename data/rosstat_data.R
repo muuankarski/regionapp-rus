@@ -1,6 +1,6 @@
 ## -------------------------------------------------------- ##
 ## Attribute data from Rosstat
-dfA <- data.frame()
+
 
 ## --------------------------- ##
 # Gross regional product
@@ -53,7 +53,7 @@ dl <- na.omit(dl)
 # define unit
 dl$unit <- "million roubles"
 # define class
-dl$class <- "Gross Regional Product "
+dl$class <- "Gross Regional Product"
 
 dfA <- rbind(dfA,dl)
 
@@ -344,9 +344,3 @@ dl$class <- "Public sector wages"
 dfA <- rbind(dfA,dl)
 
 
-## --------------------------- ##
-# Write the file
-## --------------------------- ##
-# dfA$indicator_en <- factor(dfA$indicator_en)
-# dfA$indicator_ru <- factor(dfA$indicator_ru)
-save(dfA, file="data/attribute_data.rda")

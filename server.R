@@ -29,9 +29,10 @@ shinyServer(function(input, output) {
 
   output$ui_class <- renderUI({
     dfA <- datInput_att()
+
     dfA$class <- factor(dfA$class)
     levelit1 <- levels(dfA$class)          
-    ind1 <- selectInput("class", h5("Pick a class"),choices = levelit1, width = "300px")
+    ind1 <- selectInput("class", h5("Pick a class"),choices = levelit1, selected=levelit1[1], width = "300px")
     list(ind1)
   })
   
@@ -42,7 +43,7 @@ output$ui_indicator <- renderUI({
   dfA <- dfA[dfA$class == as.character(input$class),]
   dfA$indicator_en <- factor(dfA$indicator_en)
   levelit1 <- levels(dfA$indicator_en)          
-  ind1 <- selectInput("indicator_en", h5("Pick an indicator"),choices = levelit1[5], width = "300px")
+  ind1 <- selectInput("indicator_en", h5("Pick an indicator"),choices = levelit1, selected=levelit1[5], width = "300px")
   list(ind1)
 })
 
@@ -203,9 +204,8 @@ myColors <- c("dodgerblue2","#E31A1C", # red
 
 plot_line <- function(x) {
   dfA <- datInput_att()
-  dfA$indicator_en <- as.character(dfA$indicator_en)
+
   dfA <- dfA[dfA$indicator_en == as.character(input$indicator_en),]
-  dfA$indicator_en <- factor(dfA$indicator_en)
   
   # relativise
   
@@ -438,7 +438,7 @@ output$ui_class_x <- renderUI({
   dfA <- datInput_att()
   dfA$class <- factor(dfA$class)
   levelit1 <- levels(dfA$class)          
-  ind1 <- selectInput("class_x", h5("Pick a class fox X-var"),choices = levelit1, width = "300px")
+  ind1 <- selectInput("class_x", h5("Pick a class for X-var"),choices = levelit1, width = "300px")
   list(ind1)
 })
 
@@ -449,7 +449,7 @@ output$ui_indicator_x <- renderUI({
   dfA <- dfA[dfA$class == as.character(input$class_x),]
   dfA$indicator_en <- factor(dfA$indicator_en)
   levelit1 <- levels(dfA$indicator_en)          
-  ind1 <- selectInput("indicator_x", h5("Pick an indicator fox X-var"),choices = levelit1, selected = levelit1[3], width = "300px")
+  ind1 <- selectInput("indicator_x", h5("Pick an indicator for X-var"),choices = levelit1, selected = levelit1[3], width = "300px")
   list(ind1)
 })
 
@@ -459,7 +459,7 @@ output$ui_class_y <- renderUI({
   dfA <- datInput_att()
   dfA$class <- factor(dfA$class)
   levelit1 <- levels(dfA$class)          
-  ind1 <- selectInput("class_y", h5("Pick a class fox Y-var"),choices = levelit1, selected = levelit1[2],  width = "300px")
+  ind1 <- selectInput("class_y", h5("Pick a class for Y-var"),choices = levelit1, selected = levelit1[2],  width = "300px")
   list(ind1)
 })
 
@@ -470,7 +470,7 @@ output$ui_indicator_y <- renderUI({
   dfA <- dfA[dfA$class == as.character(input$class_y),]
   dfA$indicator_en <- factor(dfA$indicator_en)
   levelit1 <- levels(dfA$indicator_en)          
-  ind1 <- selectInput("indicator_y", h5("Pick an indicator fox Y-var"),choices = levelit1, width = "300px")
+  ind1 <- selectInput("indicator_y", h5("Pick an indicator for Y-var"),choices = levelit1, width = "300px")
   list(ind1)
 })
 
@@ -483,6 +483,11 @@ output$ui_year_asso <- renderUI({
   dfZ <- merge(dfX[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
                dfY[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
                by=c("ID","variable"))
+  
+  dfZ$value.x[dfZ$value.x == 0] <- NA
+  dfZ$value.y[dfZ$value.y == 0] <- NA
+  dfZ <- dfZ[!is.na(dfZ$value.x),]
+  dfZ <- dfZ[!is.na(dfZ$value.y),]
   
   year_list <- unique(dfZ$variable)
   
@@ -589,6 +594,11 @@ plot_asso <- function(x) {
                dfY[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
                by=c("ID","russian","region_en","economic_regions","federal_district","variable"))
   
+  dfZ$value.x[dfZ$value.x == 0] <- NA
+  dfZ$value.y[dfZ$value.y == 0] <- NA
+  dfZ <- dfZ[!is.na(dfZ$value.x),]
+  dfZ <- dfZ[!is.na(dfZ$value.y),]
+
   dfZ <- dfZ[dfZ$variable == input$year_asso, ]
   
   if (input$subset_region_asso == "economic_regions") dfZ <- dfZ[dfZ$economic_regions %in% input$subreg_economic_regions_asso,]
@@ -668,6 +678,11 @@ plot_asso_all <- function(x) {
                dfY[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
                by=c("ID","russian","region_en","economic_regions","federal_district","variable"))
   
+  dfZ$value.x[dfZ$value.x == 0] <- NA
+  dfZ$value.y[dfZ$value.y == 0] <- NA
+  dfZ <- dfZ[!is.na(dfZ$value.x),]
+  dfZ <- dfZ[!is.na(dfZ$value.y),]
+  
   
   if (input$subset_region_asso == "economic_regions") dfZ <- dfZ[dfZ$economic_regions %in% input$subreg_economic_regions_asso,]
   if (input$subset_region_asso == "federal_district") dfZ <- dfZ[dfZ$federal_district %in% input$subreg_federal_district_asso,]
@@ -730,7 +745,7 @@ plot_asso_all <- function(x) {
       facet_wrap(~variable, scale= "free")
     
     
-  library(dplyr)
+  library(plyr)
   cors <- ddply(dfZ, .(variable), summarise, cor = round(cor(value.x, value.y, "pairwise.complete.obs"), 2))
   print(  
     plot + geom_text(data=cors, aes(label=paste0("cor = ", cor, sep="")), 
