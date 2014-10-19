@@ -141,7 +141,7 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
 tabPanel("About",
          
          h3("Source code"),
-         tags$a(href="http://hs.fi", "Source code available at Github"),
+         tags$a(href="https://github.com/muuankarski/regionapp-rus", "Source code available at Github"),
          h3("Licencing")
          
          
