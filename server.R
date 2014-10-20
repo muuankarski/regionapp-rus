@@ -7,7 +7,7 @@
 
 library(shiny)
 library(reshape2)
-library(GGally)
+
 
 shinyServer(function(input, output) {
   
@@ -286,7 +286,7 @@ if (input$maps == "No") {
 print(ggplot(dfA, aes_string(x="variable",y="value",group="region_en",color=color_obj)) +
           geom_point(size=3) + geom_line()  +
          labs(title = as.character(input$indicator_en)) +
-          theme_minimal() +
+          theme_bw() +
           theme(text = element_text(family="Open Sans")) +
           # map year annotation
           line_map +
@@ -952,7 +952,7 @@ plot_para <- function(x) {
   
   dfZ <- na.omit(dwx) 
   
-  dfZ <- dfZ[dfZ$variable == input$year_para,]
+
   
   #dfZ <- dfZ[dfZ$variable == 2010,]
   
@@ -991,96 +991,234 @@ plot_para <- function(x) {
   }
   #library(GGally)
 # Generate basic parallel coordinate plot
-p <- ggparcoord(data = dfZ,                 
-                # Which columns to use in the plot
-                columns = 5:8,                 
-                # Which column to use for coloring data
-                groupColumn = 1,                 
-                # Allows order of vertical bars to be modified
-                order = 6,                
-                # Do not show points
-                showPoints = FALSE,                
-                # Turn on alpha blending for dense plots
-                alphaLines = 0.6,                
-                # Turn off box shading range
-                shadeBox = NULL,                
-                # Will normalize each column's values to [0, 1]
-                scale = "uniminmax"#, # try "std" also + boxplot = TRUE
-                ) +
-                theme_minimal() +  # Start with a basic theme 
-                scale_y_continuous(expand = c(0.02, 0.02)) + 
-                scale_x_discrete(expand = c(0.02, 0.02)) + # Decrease amount of margin around x, y values
-                theme(axis.ticks = element_blank()) + # Remove axis ticks and labels
-                theme(axis.title = element_blank()) + # Remove axis ticks and labels
-                theme(axis.text.y = element_blank()) + # Remove axis ticks and labels
-                theme(legend.position = "none")
-
-# lasketaan pisteet 
-
-# range01 <- function(x){(x-min(x))/(max(x)-min(x))}
-# 
-# dfZZ <- dfZ
-# 
-# dfZZ[5:8] <- range01(dfZZ[5:8])
-# 
-# names(dfZZ)[2] <- "year"
-# 
-# dfZl <- melt(dfZZ, id.vars=c("region_en","year","federal_district","economic_regions"))  
-# 
-# enddata <- dfZl[dfZl$variable == input$indicator_var4,]
-# begindata <- dfZl[dfZl$variable == input$indicator_var1,]
-# #enddata <- dfZl[dfZl$variable == "all",]
-# #begindata <- dfZl[dfZl$variable == "mining",]
-# 
-# # begindata <- merge(begindata,p$data[p$data$variable == "mining",1:2],by="region_en")
-# # enddata <- merge(enddata,p$data[p$data$variable == "all",1:2],by="region_en")
-# 
-# enddata <- merge(enddata,p$data[p$data$variable == input$indicator_var4 ,1:2],by="region_en")
-# begindata <- merge(begindata,p$data[p$data$variable == input$indicator_var1 ,1:2],by="region_en")
-
-enddata <- p$data[p$data$variable == input$indicator_var4,]
-begindata <- p$data[p$data$variable == input$indicator_var1,]
-
-# enddata <- p$data[p$data$variable == "all",]
-# begindata <- p$data[p$data$variable == "mining",]
+# p <- ggparcoord(data = dfZ,                 
+#                 # Which columns to use in the plot
+#                 columns = 5:8,                 
+#                 # Which column to use for coloring data
+#                 groupColumn = 1,                 
+#                 # Allows order of vertical bars to be modified
+#                 order = 6,                
+#                 # Do not show points
+#                 showPoints = FALSE,                
+#                 # Turn on alpha blending for dense plots
+#                 alphaLines = 0.6,                
+#                 # Turn off box shading range
+#                 shadeBox = NULL,                
+#                 # Will normalize each column's values to [0, 1]
+#                 scale = "uniminmax"#, # try "std" also + boxplot = TRUE
+#                 ) +
+#                 theme_minimal() +  # Start with a basic theme 
+#                 scale_y_continuous(expand = c(0.02, 0.02)) + 
+#                 scale_x_discrete(expand = c(0.02, 0.02)) + # Decrease amount of margin around x, y values
+#                 theme(axis.ticks = element_blank()) + # Remove axis ticks and labels
+#                 theme(axis.title = element_blank()) + # Remove axis ticks and labels
+#                 theme(axis.text.y = element_blank()) + # Remove axis ticks and labels
+#                 theme(legend.position = "top") #+
 
 
+dfZZ <- dfZ
 
-p <- p + geom_text(data=enddata, 
-                   aes(x=4, y=value,label=region_en),
-                   hjust=1,size=3.5,family="Open Sans")
-p <- p + geom_text(data=begindata, 
-                   aes(x=1, y=value,label=region_en), 
-                   hjust=0,size=3.5,family="Open Sans")
+names(dfZZ)[2] <- "year"
 
-# min_y <- min(p$data$value)
-# max_y <- max(p$data$value)
-# pad_y <- (max_y - min_y) * 0.1
-#   
-# 
-# # Calculate label positions for each veritcal bar
-# lab_x <- rep(1:4, times = 2) # 2 times, 1 for min 1 for max
-# lab_y <- rep(c(min_y - pad_y, max_y + pad_y), each = 4)
-# 
-# # Get min and max values from original dataset
-# lab_z <- c(sapply(df[, 1:4], min), sapply(df[, 1:4], max))
-# 
-# # Convert to character for use as labels
-# lab_z <- as.character(lab_z)
-# 
-# # Add labels to plot
-# p <- p + annotate("text", x = lab_x, y = lab_y, label = lab_z, size = 3)
-# 
-# # Display parallel coordinate plot
+dfZZ$ID <- 1:nrow(dfZZ)
+
+range01 <- function(x){(x-min(x))/(max(x)-min(x))}
+
+dfZZ[5] <- range01(dfZZ[5])
+dfZZ[6] <- range01(dfZZ[6])
+dfZZ[7] <- range01(dfZZ[7])
+dfZZ[8] <- range01(dfZZ[8])
+
+df.x <- melt(dfZZ,id.vars=c("ID","region_en","federal_district","year"), 
+             measure.vars = c(input$indicator_var1,
+                              input$indicator_var2,
+                              input$indicator_var3,
+                              input$indicator_var4))
+
+df.x$variable <- factor(df.x$variable, levels=c(input$indicator_var1,
+                                                input$indicator_var2,
+                                                input$indicator_var3,
+                                                input$indicator_var4))
+
+df.x <- df.x[df.x$year == input$year_para,]
+
+enddata <- df.x[df.x$variable == input$indicator_var4,]
+thirddata <- df.x[df.x$variable == input$indicator_var3,]
+seconddata <- df.x[df.x$variable == input$indicator_var2,]
+begindata <- df.x[df.x$variable == input$indicator_var1,]
+
+p <- ggplot(df.x,aes(x=variable,y=value,colour=federal_district,group=ID))+
+  geom_line() +
+  geom_text(data=enddata, 
+            aes(x=4, y=value,label=region_en),
+            hjust=-.2,size=3.5,family="Open Sans") +
+  geom_text(data=begindata, 
+            aes(x=1, y=value,label=region_en), 
+            hjust=1,size=3.5,family="Open Sans") +
+  geom_text(data=thirddata, 
+            aes(x=3, y=value,label=region_en), 
+            hjust=.3,vjust=-.5,size=3.5,family="Open Sans") +
+  geom_text(data=seconddata, 
+            aes(x=2, y=value,label=region_en), 
+            hjust=.3,vjust=-.5,size=3.5,family="Open Sans") +
+  theme_bw() +
+  theme(text = element_text(family="Open Sans")) +
+  theme(legend.position="top") +
+  theme(legend.text=element_text(size=12)) +
+  guides(color=guide_legend(nrow=2))
+  
+
+# px <- ggplot(df.x,aes(x=variable,y=value,colour=federal_district,group=ID))+
+#   geom_line() + facet_wrap(~year)
+#   theme(legend.position="none")
+
+
 print(p)
+
+
+
 }
 
+plot_para_all <- function(x) {
+  
+  
+  dfA <- datInput_att()
+  
+  df1 <- dfA[dfA$indicator_en == as.character(input$indicator_var1),]
+  df2 <- dfA[dfA$indicator_en == as.character(input$indicator_var2),]
+  df3 <- dfA[dfA$indicator_en == as.character(input$indicator_var3),]
+  df4 <- dfA[dfA$indicator_en == as.character(input$indicator_var4),]
+  
+  #   df1 <- dfA[dfA$indicator_en == "mining", ]
+  #   df2 <- dfA[dfA$indicator_en == "Education", ]
+  #   df4 <- dfA[dfA$indicator_en == "all", ]
+  #   df3 <- dfA[dfA$indicator_en == "Transport and communications", ]
+  
+  
+  dw1 <- dcast(df1, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  dw2 <- dcast(df2, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  dw3 <- dcast(df3, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  dw4 <- dcast(df4, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  
+  dwx <- merge(dw1,dw2,by=c("region_en","variable","federal_district","economic_regions"))
+  dwx <- merge(dwx,dw3,by=c("region_en","variable","federal_district","economic_regions"))
+  dwx <- merge(dwx,dw4,by=c("region_en","variable","federal_district","economic_regions"))
+  
+  dfZ <- na.omit(dwx) 
+  
+  
+  
+  #dfZ <- dfZ[dfZ$variable == 2010,]
+  
+  if (input$subset_region_para == "economic_regions") dfZ <- dfZ[dfZ$economic_regions %in% input$subreg_economic_regions_para,]
+  if (input$subset_region_para == "federal_district") dfZ <- dfZ[dfZ$federal_district %in% input$subreg_federal_district_para,]
+  if (input$subset_region_para == "region") dfZ <- dfZ[dfZ$region_en %in% c(input$subreg_region1_para,
+                                                                            input$subreg_region2_para,
+                                                                            input$subreg_region3_para,
+                                                                            input$subreg_region4_para,
+                                                                            input$subreg_region5_para),]
+  
+  if (input$subset_region_para == "economic_regions") {
+    color_obj <- "factor(economic_regions)"
+    #
+    names(myColors) <- levels(dfZ$economic_regions)
+    library(ggplot2)
+    colScale <- scale_colour_manual(name = "Economic Regions",
+                                    values = myColors)
+  }
+  if (input$subset_region_para == "federal_district") {
+    color_obj <- "factor(federal_district)"
+    #
+    names(myColors) <- levels(dfZ$federal_district)
+    library(ggplot2)
+    colScale <- scale_colour_manual(name = "Federal Districts",
+                                    values = myColors)
+  }
+  if (input$subset_region_para == "region") {
+    color_obj <- "factor(region_en)"
+    #
+    library(ggplot2)
+    library(RColorBrewer)
+    myColors <- brewer.pal(5,"Set1")
+    colScale <- scale_colour_manual(name = "Regions",
+                                    values = myColors)
+  }
 
+  
+  dfZZ <- dfZ
+  
+  names(dfZZ)[2] <- "year"
+  
+  dfZZ$ID <- 1:nrow(dfZZ)
+  
+  range01 <- function(x){(x-min(x))/(max(x)-min(x))}
+  
+  dfZZ[5] <- range01(dfZZ[5])
+  dfZZ[6] <- range01(dfZZ[6])
+  dfZZ[7] <- range01(dfZZ[7])
+  dfZZ[8] <- range01(dfZZ[8])
+  
+  df.x <- melt(dfZZ,id.vars=c("ID","region_en","federal_district","year"), 
+               measure.vars = c(input$indicator_var1,
+                                input$indicator_var2,
+                                input$indicator_var3,
+                                input$indicator_var4))
+  
+  df.x$variable <- factor(df.x$variable, levels=c(input$indicator_var1,
+                                                  input$indicator_var2,
+                                                  input$indicator_var3,
+                                                  input$indicator_var4))
+  
+  #df.x <- df.x[df.x$year == input$year_para,]
+  
+  enddata <- df.x[df.x$variable == input$indicator_var4,]
+  thirddata <- df.x[df.x$variable == input$indicator_var3,]
+  seconddata <- df.x[df.x$variable == input$indicator_var3,]
+  begindata <- df.x[df.x$variable == input$indicator_var1,]
+  
+  
+  p <- ggplot(df.x,aes(x=variable,y=value,colour=federal_district,group=ID))+
+    geom_line() + facet_wrap(~year) +
+    geom_text(data=enddata, 
+              aes(x=4, y=value,label=region_en),
+              hjust=-.2,size=3.5,family="Open Sans") +
+    geom_text(data=begindata, 
+              aes(x=1, y=value,label=region_en), 
+              hjust=1,size=3.5,family="Open Sans") +
+    geom_text(data=thirddata, 
+              aes(x=3, y=value,label=region_en), 
+              hjust=.3,vjust=-.5,size=3.5,family="Open Sans") +
+    geom_text(data=seconddata, 
+              aes(x=2, y=value,label=region_en), 
+              hjust=.3,vjust=-.5,size=3.5,family="Open Sans") +
+    theme_bw() +
+    theme(text = element_text(family="Open Sans")) +
+    theme(legend.position="top") +
+    theme(legend.text=element_text(size=12)) +
+    guides(color=guide_legend(nrow=2))
+    
+  
+  
+  
+  print(p)
+  
+  
+
+  
+  
+}
 
 output$plot_para <- renderPlot({
   
 plot_para()  
 
+})
+
+output$plot_para_all <- renderPlot({
+  
+plot_para_all()
+
+  
 })
 
   
