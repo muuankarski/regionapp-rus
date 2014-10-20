@@ -5,7 +5,7 @@ library(shiny)
 
 shinyUI(navbarPage("Regions of Russia", id="nav",
                    
-                   tabPanel("Time-series",
+                   tabPanel("Time-series & Maps",
                             div(class="outer",
                                 
                                 tags$head(
@@ -74,7 +74,7 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
 #                                               )
                    
 
-                  tabPanel("Interactions",
+                  tabPanel("Scatterplots",
 
                            
                            div(class="outer",
@@ -125,11 +125,55 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
                            
                            )),
 
-                  tabPanel("Karelia",
-         
-                            tags$img(
-                            src="http://www.ortana.com/new/images/ORTANA/Logo/Under_Construction_Sign_2.jpg"
-                              )
+                  tabPanel("Parallel coordinates",
+                            
+                            
+                            div(class="outer",
+                                
+                                tags$head(
+                                  # Include our custom CSS
+                                  includeCSS("styles.css")
+                                  
+                                  
+                                ),
+                                
+                                tabsetPanel(type= "tabs", position= "above",
+                                            #tabPanel("Single year plot", plotOutput("plot_para", width="100%", height = "750px")),
+                                            tabPanel("All years plot", plotOutput("plot_para", width="100%", height = "750px"))
+                                ),
+                                
+                                
+                                
+                                absolutePanel(id = "controls", class = "modal", fixed = TRUE, draggable = TRUE,
+                                              top = 60, left = "auto", right = 20, bottom = "auto",
+                                              width = 300, height = "auto",
+                                              
+                                              h3("Define the variables"),
+                                              uiOutput("ui_class_var1"),
+                                              uiOutput("ui_indicator_var1"),
+                                              uiOutput("ui_class_var2"),
+                                              uiOutput("ui_indicator_var2"),
+                                              uiOutput("ui_class_var3"),
+                                              uiOutput("ui_indicator_var3"),
+                                              uiOutput("ui_class_var4"),
+                                              uiOutput("ui_indicator_var4"),
+                                              uiOutput("ui_year_para")
+                                              
+                                ),
+                                
+                                absolutePanel(id = "controls", class = "modal", fixed = TRUE, draggable = TRUE,
+                                              top = "auto", left = 350, right = "auto", bottom = 60,
+                                              width = 250, height = 450,
+                                              
+                                              radioButtons("subset_region_para", h5("Scheme for subsetting regions"), 
+                                                           choices=c("Economic Regions"="economic_regions",
+                                                                     "Federal Districts"="federal_district",
+                                                                     "Regions"="region")),
+                                              uiOutput("ui_region_para")
+                                              
+                                                            )
+                                                                
+                            )
          
          
 ),

@@ -6,6 +6,8 @@
 #
 
 library(shiny)
+library(reshape2)
+library(GGally)
 
 shinyServer(function(input, output) {
   
@@ -771,11 +773,315 @@ output$plot_asso_all <- renderPlot({
 
 ## --------------------------------------------------------------- ##
 ## --------------------------------------------------------------- ##
-##       Karelia
+##       Parallel Coordinates Plot
 ## --------------------------------------------------------------- ##
 ## --------------------------------------------------------------- ##
 
 
+# 1-var
+
+output$ui_class_var1 <- renderUI({
+  dfA <- datInput_att()
+  dfA$class <- factor(dfA$class)
+  levelit1 <- levels(dfA$class)          
+  ind1 <- selectInput("class_var1", h5("Pick a class for variable 1"),choices = levelit1, width = "300px")
+  list(ind1)
+})
+
+
+output$ui_indicator_var1 <- renderUI({
+  dfA <- datInput_att()
+  
+  dfA <- dfA[dfA$class == as.character(input$class_var1),]
+  dfA$indicator_en <- factor(dfA$indicator_en)
+  levelit1 <- levels(dfA$indicator_en)          
+  ind1 <- selectInput("indicator_var1", h5("Pick an indicator for variable 1"),choices = levelit1, selected = levelit1[3], width = "300px")
+  list(ind1)
+})
+
+# 2-var
+
+output$ui_class_var2 <- renderUI({
+  dfA <- datInput_att()
+  dfA$class <- factor(dfA$class)
+  levelit1 <- levels(dfA$class)          
+  ind1 <- selectInput("class_var2", h5("Pick a class for variable 2"),choices = levelit1, width = "300px")
+  list(ind1)
+})
+
+
+output$ui_indicator_var2 <- renderUI({
+  dfA <- datInput_att()
+  
+  dfA <- dfA[dfA$class == as.character(input$class_var2),]
+  dfA$indicator_en <- factor(dfA$indicator_en)
+  levelit1 <- levels(dfA$indicator_en)          
+  ind1 <- selectInput("indicator_var2", h5("Pick an indicator for variable 2"),choices = levelit1, selected = levelit1[4], width = "300px")
+  list(ind1)
+})
+
+# 3-var
+
+output$ui_class_var3 <- renderUI({
+  dfA <- datInput_att()
+  dfA$class <- factor(dfA$class)
+  levelit1 <- levels(dfA$class)          
+  ind1 <- selectInput("class_var3", h5("Pick a class for variable 3"),choices = levelit1, width = "300px")
+  list(ind1)
+})
+
+
+output$ui_indicator_var3 <- renderUI({
+  dfA <- datInput_att()
+  
+  dfA <- dfA[dfA$class == as.character(input$class_var3),]
+  dfA$indicator_en <- factor(dfA$indicator_en)
+  levelit1 <- levels(dfA$indicator_en)          
+  ind1 <- selectInput("indicator_var3", h5("Pick an indicator for variable 3"),choices = levelit1, selected = levelit1[5], width = "300px")
+  list(ind1)
+})
+
+# 4-var
+
+output$ui_class_var4 <- renderUI({
+  dfA <- datInput_att()
+  dfA$class <- factor(dfA$class)
+  levelit1 <- levels(dfA$class)          
+  ind1 <- selectInput("class_var4", h5("Pick a class for variable 4"),choices = levelit1, width = "300px")
+  list(ind1)
+})
+
+
+output$ui_indicator_var4 <- renderUI({
+  dfA <- datInput_att()
+  
+  dfA <- dfA[dfA$class == as.character(input$class_var4),]
+  dfA$indicator_en <- factor(dfA$indicator_en)
+  levelit1 <- levels(dfA$indicator_en)          
+  ind1 <- selectInput("indicator_var4", h5("Pick an indicator for variable 4"),choices = levelit1, selected = levelit1[6], width = "300px")
+  list(ind1)
+})
+
+
+
+output$ui_year_para <- renderUI({
+  dfA <- datInput_att()
+  
+  df1 <- dfA[dfA$indicator_en == as.character(input$indicator_var1),]
+  df2 <- dfA[dfA$indicator_en == as.character(input$indicator_var2),]
+  df3 <- dfA[dfA$indicator_en == as.character(input$indicator_var3),]
+  df4 <- dfA[dfA$indicator_en == as.character(input$indicator_var4),]
+
+  dw1 <- dcast(df1, region_en + variable ~ indicator_en, value.var="value")
+  dw2 <- dcast(df2, region_en + variable ~ indicator_en, value.var="value")
+  dw3 <- dcast(df3, region_en + variable ~ indicator_en, value.var="value")
+  dw4 <- dcast(df4, region_en + variable ~ indicator_en, value.var="value")
+  
+  dwx <- merge(dw1,dw2,by=c("region_en","variable"))
+  dwx <- merge(dwx,dw3,by=c("region_en","variable"))
+  dwx <- merge(dwx,dw4,by=c("region_en","variable"))
+  
+  dwx <- na.omit(dwx) 
+
+  year_list <- unique(dwx$variable)
+  
+  ip3 <- selectInput('year_para', h5('Year'), choices= year_list,
+                     selected = year_list[1])
+  
+  list(ip3)
+})
+
+
+output$ui_region_para <- renderUI({
+  dfA <- datInput_att()
+  levels_federal_district <- as.character(levels(dfA$federal_district))[-1]
+  levels_economic_regions <- as.character(levels(dfA$economic_regions))[-1]
+  levels_regions <- as.character(levels(dfA$region_en))[-1]
+  
+  ip0 <- h3("Subset the regions")
+  
+  if (input$subset_region_para == "economic_regions") {
+    ip1 <- checkboxGroupInput("subreg_economic_regions_para", h6("Select region:"),inline = TRUE, choices = levels_economic_regions, selected = levels_economic_regions)
+    ip2 <- ""
+    ip3 <- ""
+    ip4 <- ""
+    ip5 <- ""
+  }
+  if (input$subset_region_para == "federal_district") {
+    ip1 <- checkboxGroupInput("subreg_federal_district_para", h6("Select region:"),inline = TRUE, choices = levels_federal_district, selected = levels_federal_district)
+    ip2 <- ""
+    ip3 <- ""
+    ip4 <- ""
+    ip5 <- ""
+  }
+  if (input$subset_region_para == "region") {
+    ip1 <- selectInput("subreg_region1_para", h6("Select region 1:"), choices = c(NA,levels_regions), selected = levels_regions[2])
+    ip2 <- selectInput("subreg_region2_para",  h6("Select region 2:"), choices = c(NA,levels_regions), selected = levels_regions[3])
+    ip3 <- selectInput("subreg_region3_para",  h6("Select region 3:"), choices = c(NA,levels_regions), selected = levels_regions[4])
+    ip4 <- selectInput("subreg_region4_para",  h6("Select region 4:"), choices = c(NA,levels_regions), selected = levels_regions[5])
+    ip5 <- selectInput("subreg_region5_para",  h6("Select region 5:"), choices = c(NA,levels_regions), selected = levels_regions[6])
+  }
+  list(ip1,ip2,ip3,ip4,ip5)
+})
+
+
+plot_para <- function(x) {
+  
+  
+  dfA <- datInput_att()
+  
+  df1 <- dfA[dfA$indicator_en == as.character(input$indicator_var1),]
+  df2 <- dfA[dfA$indicator_en == as.character(input$indicator_var2),]
+  df3 <- dfA[dfA$indicator_en == as.character(input$indicator_var3),]
+  df4 <- dfA[dfA$indicator_en == as.character(input$indicator_var4),]
+  
+#   df1 <- dfA[dfA$indicator_en == "mining", ]
+#   df2 <- dfA[dfA$indicator_en == "Education", ]
+#   df4 <- dfA[dfA$indicator_en == "all", ]
+#   df3 <- dfA[dfA$indicator_en == "Transport and communications", ]
+  
+  
+  dw1 <- dcast(df1, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  dw2 <- dcast(df2, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  dw3 <- dcast(df3, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  dw4 <- dcast(df4, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  
+  dwx <- merge(dw1,dw2,by=c("region_en","variable","federal_district","economic_regions"))
+  dwx <- merge(dwx,dw3,by=c("region_en","variable","federal_district","economic_regions"))
+  dwx <- merge(dwx,dw4,by=c("region_en","variable","federal_district","economic_regions"))
+  
+  dfZ <- na.omit(dwx) 
+  
+  dfZ <- dfZ[dfZ$variable == input$year_para,]
+  
+  #dfZ <- dfZ[dfZ$variable == 2010,]
+  
+  if (input$subset_region_para == "economic_regions") dfZ <- dfZ[dfZ$economic_regions %in% input$subreg_economic_regions_para,]
+  if (input$subset_region_para == "federal_district") dfZ <- dfZ[dfZ$federal_district %in% input$subreg_federal_district_para,]
+  if (input$subset_region_para == "region") dfZ <- dfZ[dfZ$region_en %in% c(input$subreg_region1_para,
+                                                                            input$subreg_region2_para,
+                                                                            input$subreg_region3_para,
+                                                                            input$subreg_region4_para,
+                                                                            input$subreg_region5_para),]
+  
+    if (input$subset_region_para == "economic_regions") {
+    color_obj <- "factor(economic_regions)"
+    #
+    names(myColors) <- levels(dfZ$economic_regions)
+    library(ggplot2)
+    colScale <- scale_colour_manual(name = "Economic Regions",
+                                    values = myColors)
+  }
+  if (input$subset_region_para == "federal_district") {
+    color_obj <- "factor(federal_district)"
+    #
+    names(myColors) <- levels(dfZ$federal_district)
+    library(ggplot2)
+    colScale <- scale_colour_manual(name = "Federal Districts",
+                                    values = myColors)
+  }
+  if (input$subset_region_para == "region") {
+    color_obj <- "factor(region_en)"
+    #
+    library(ggplot2)
+    library(RColorBrewer)
+    myColors <- brewer.pal(5,"Set1")
+    colScale <- scale_colour_manual(name = "Regions",
+                                    values = myColors)
+  }
+  #library(GGally)
+# Generate basic parallel coordinate plot
+p <- ggparcoord(data = dfZ,                 
+                # Which columns to use in the plot
+                columns = 5:8,                 
+                # Which column to use for coloring data
+                groupColumn = 1,                 
+                # Allows order of vertical bars to be modified
+                order = 6,                
+                # Do not show points
+                showPoints = FALSE,                
+                # Turn on alpha blending for dense plots
+                alphaLines = 0.6,                
+                # Turn off box shading range
+                shadeBox = NULL,                
+                # Will normalize each column's values to [0, 1]
+                scale = "uniminmax"#, # try "std" also + boxplot = TRUE
+                ) +
+                theme_minimal() +  # Start with a basic theme 
+                scale_y_continuous(expand = c(0.02, 0.02)) + 
+                scale_x_discrete(expand = c(0.02, 0.02)) + # Decrease amount of margin around x, y values
+                theme(axis.ticks = element_blank()) + # Remove axis ticks and labels
+                theme(axis.title = element_blank()) + # Remove axis ticks and labels
+                theme(axis.text.y = element_blank()) + # Remove axis ticks and labels
+                theme(legend.position = "none")
+
+# lasketaan pisteet 
+
+# range01 <- function(x){(x-min(x))/(max(x)-min(x))}
+# 
+# dfZZ <- dfZ
+# 
+# dfZZ[5:8] <- range01(dfZZ[5:8])
+# 
+# names(dfZZ)[2] <- "year"
+# 
+# dfZl <- melt(dfZZ, id.vars=c("region_en","year","federal_district","economic_regions"))  
+# 
+# enddata <- dfZl[dfZl$variable == input$indicator_var4,]
+# begindata <- dfZl[dfZl$variable == input$indicator_var1,]
+# #enddata <- dfZl[dfZl$variable == "all",]
+# #begindata <- dfZl[dfZl$variable == "mining",]
+# 
+# # begindata <- merge(begindata,p$data[p$data$variable == "mining",1:2],by="region_en")
+# # enddata <- merge(enddata,p$data[p$data$variable == "all",1:2],by="region_en")
+# 
+# enddata <- merge(enddata,p$data[p$data$variable == input$indicator_var4 ,1:2],by="region_en")
+# begindata <- merge(begindata,p$data[p$data$variable == input$indicator_var1 ,1:2],by="region_en")
+
+enddata <- p$data[p$data$variable == input$indicator_var4,]
+begindata <- p$data[p$data$variable == input$indicator_var1,]
+
+# enddata <- p$data[p$data$variable == "all",]
+# begindata <- p$data[p$data$variable == "mining",]
+
+
+
+p <- p + geom_text(data=enddata, 
+                   aes(x=4, y=value,label=region_en),
+                   hjust=1,size=3.5,family="Open Sans")
+p <- p + geom_text(data=begindata, 
+                   aes(x=1, y=value,label=region_en), 
+                   hjust=0,size=3.5,family="Open Sans")
+
+# min_y <- min(p$data$value)
+# max_y <- max(p$data$value)
+# pad_y <- (max_y - min_y) * 0.1
+#   
+# 
+# # Calculate label positions for each veritcal bar
+# lab_x <- rep(1:4, times = 2) # 2 times, 1 for min 1 for max
+# lab_y <- rep(c(min_y - pad_y, max_y + pad_y), each = 4)
+# 
+# # Get min and max values from original dataset
+# lab_z <- c(sapply(df[, 1:4], min), sapply(df[, 1:4], max))
+# 
+# # Convert to character for use as labels
+# lab_z <- as.character(lab_z)
+# 
+# # Add labels to plot
+# p <- p + annotate("text", x = lab_x, y = lab_y, label = lab_z, size = 3)
+# 
+# # Display parallel coordinate plot
+print(p)
+}
+
+
+
+output$plot_para <- renderPlot({
+  
+plot_para()  
+
+})
 
   
 })
