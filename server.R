@@ -118,30 +118,22 @@ output$ui_region <- renderUI({
   dfA <- datInput_att()
   levels_federal_district <- as.character(levels(dfA$federal_district))[-1]
   levels_economic_regions <- as.character(levels(dfA$economic_regions))[-1]
+  levels_subject <- as.character(levels(dfA$type_of_subject))[-1]
   levels_regions <- as.character(levels(dfA$region_en))[-1]
   
   if (input$subset_region == "economic_regions") {
     ip1 <- checkboxGroupInput("subreg_economic_regions", h6("Select region:"),inline = TRUE, choices = levels_economic_regions, selected = levels_economic_regions)
-    ip2 <- ""
-    ip3 <- ""
-    ip4 <- ""
-    ip5 <- ""
       }
   if (input$subset_region == "federal_district") {
     ip1 <- checkboxGroupInput("subreg_federal_district", h6("Select region:"),inline = TRUE, choices = levels_federal_district, selected = levels_federal_district)
-    ip2 <- ""
-    ip3 <- ""
-    ip4 <- ""
-    ip5 <- ""
+  }
+  if (input$subset_region == "type_of_subject") {
+    ip1 <- checkboxGroupInput("subreg_subject", h6("Select type of subject:"),inline = TRUE, choices = levels_subject, selected = levels_subject)
   }
   if (input$subset_region == "region") {
-    ip1 <- selectInput("subreg_region1", h6("Select region 1:"), choices = c(NA,levels_regions), selected = levels_regions[2])
-    ip2 <- selectInput("subreg_region2",  h6("Select region 2:"), choices = c(NA,levels_regions), selected = levels_regions[3])
-    ip3 <- selectInput("subreg_region3",  h6("Select region 3:"), choices = c(NA,levels_regions), selected = levels_regions[4])
-    ip4 <- selectInput("subreg_region4",  h6("Select region 4:"), choices = c(NA,levels_regions), selected = levels_regions[5])
-    ip5 <- selectInput("subreg_region5",  h6("Select region 5:"), choices = c(NA,levels_regions), selected = levels_regions[6])
+    ip1 <- selectizeInput('subreg_region', h6("Select individual regions:"), choices = levels_regions, multiple = TRUE)
   }
-  list(ip1,ip2,ip3,ip4,ip5)
+  list(ip1)
 })
 
 
@@ -188,7 +180,7 @@ myColors <- c("dodgerblue2","#E31A1C", # red
   output$small_plot <- renderUI({
     if (input$maps == "Yes") {
     absolutePanel(id = "controls", class = "modal", fixed = TRUE, draggable = TRUE,
-                  top = 60, left = 350, right = "auto", bottom = "auto",
+                  top = 500, left = 350, right = "auto", bottom = "auto",
                   width = 550, height = 450,
                   
                   plotOutput("plot_small", width = 550))
@@ -227,11 +219,8 @@ plot_line <- function(x) {
   
   if (input$subset_region == "economic_regions") dfA <- dfA[dfA$economic_regions %in% input$subreg_economic_regions,]
   if (input$subset_region == "federal_district") dfA <- dfA[dfA$federal_district %in% input$subreg_federal_district,]
-  if (input$subset_region == "region") dfA <- dfA[dfA$region_en %in% c(input$subreg_region1,
-                                                                              input$subreg_region2,
-                                                                              input$subreg_region3,
-                                                                              input$subreg_region4,
-                                                                              input$subreg_region5),]
+  if (input$subset_region == "type_of_subject") dfA <- dfA[dfA$type_of_subject %in% input$subreg_subject,]
+  if (input$subset_region == "region") dfA <- dfA[dfA$region_en %in% input$subreg_region,]
   
     if (input$subset_region == "economic_regions") {
       color_obj <- "factor(economic_regions)"
@@ -249,12 +238,19 @@ plot_line <- function(x) {
       colScale <- scale_colour_manual(name = "Federal Districts",
                                       values = myColors)
     }
+    if (input$subset_region == "type_of_subject") {
+      color_obj <- "factor(type_of_subject)"
+      #
+      names(myColors) <- levels(dfA$type_of_subject)
+      library(ggplot2)
+      colScale <- scale_colour_manual(name = "type_of_subject",
+                                  values = myColors)
+}
     if (input$subset_region == "region") {
       color_obj <- "factor(region_en)"
       #
       library(ggplot2)
       library(RColorBrewer)
-      myColors <- brewer.pal(5,"Set1")
       colScale <- scale_colour_manual(name = "Regions",
                                       values = myColors)
     }
@@ -335,11 +331,7 @@ plot_map <- function(x) {
   
   if (input$subset_region == "economic_regions") dfA <- dfA[dfA$economic_regions %in% input$subreg_economic_regions,]
   if (input$subset_region == "federal_district") dfA <- dfA[dfA$federal_district %in% input$subreg_federal_district,]
-  if (input$subset_region == "region") dfA <- dfA[dfA$region_en %in% c(input$subreg_region1,
-                                                                       input$subreg_region2,
-                                                                       input$subreg_region3,
-                                                                       input$subreg_region4,
-                                                                       input$subreg_region5),]
+  if (input$subset_region == "region") dfA <- dfA[dfA$region_en %in% input$subreg_region,]
   
   dfA <- dfA[dfA$variable == input$year_map,]
   
@@ -430,7 +422,7 @@ output$plot_small <- renderPlot({
 
 ## --------------------------------------------------------------- ##
 ## --------------------------------------------------------------- ##
-##       Associations
+##       Scatterplots
 ## --------------------------------------------------------------- ##
 ## --------------------------------------------------------------- ##
 
@@ -500,56 +492,41 @@ output$ui_year_asso <- renderUI({
 })
 
 
+
+
+
+
+
+
+
+
 output$ui_region_asso <- renderUI({
   dfA <- datInput_att()
   levels_federal_district <- as.character(levels(dfA$federal_district))[-1]
   levels_economic_regions <- as.character(levels(dfA$economic_regions))[-1]
+  levels_subject <- as.character(levels(dfA$type_of_subject))[-1]
   levels_regions <- as.character(levels(dfA$region_en))[-1]
   
   ip0 <- h3("Subset the regions")
   
   if (input$subset_region_asso == "economic_regions") {
     ip1 <- checkboxGroupInput("subreg_economic_regions_asso", h6("Select region:"),inline = TRUE, choices = levels_economic_regions, selected = levels_economic_regions)
-    ip2 <- ""
-    ip3 <- ""
-    ip4 <- ""
-    ip5 <- ""
   }
   if (input$subset_region_asso == "federal_district") {
     ip1 <- checkboxGroupInput("subreg_federal_district_asso", h6("Select region:"),inline = TRUE, choices = levels_federal_district, selected = levels_federal_district)
-    ip2 <- ""
-    ip3 <- ""
-    ip4 <- ""
-    ip5 <- ""
+  }
+  if (input$subset_region_asso == "type_of_subject") {
+    ip1 <- checkboxGroupInput("subreg_subject_asso", h6("Select type of subject:"),inline = TRUE, choices = levels_subject, selected = levels_subject)
   }
   if (input$subset_region_asso == "region") {
-    ip1 <- selectInput("subreg_region1_asso", h6("Select region 1:"), choices = c(NA,levels_regions), selected = levels_regions[2])
-    ip2 <- selectInput("subreg_region2_asso",  h6("Select region 2:"), choices = c(NA,levels_regions), selected = levels_regions[3])
-    ip3 <- selectInput("subreg_region3_asso",  h6("Select region 3:"), choices = c(NA,levels_regions), selected = levels_regions[4])
-    ip4 <- selectInput("subreg_region4_asso",  h6("Select region 4:"), choices = c(NA,levels_regions), selected = levels_regions[5])
-    ip5 <- selectInput("subreg_region5_asso",  h6("Select region 5:"), choices = c(NA,levels_regions), selected = levels_regions[6])
+    ip1 <- selectizeInput('subreg_region_asso', h6("Select individual regions:"), choices = levels_regions, multiple = TRUE)
   }
-  list(ip1,ip2,ip3,ip4,ip5)
+  list(ip1)
 })
 
 
 output$ui_adjust_asso_plot <- renderUI({
   
-#   dfA <- datInput_att()
-#   
-#   dfX <- dfA[dfA$indicator_en == as.character(input$indicator_x),]
-#   dfY <- dfA[dfA$indicator_en == as.character(input$indicator_y),]
-#   dfZ <- merge(dfX[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
-#                dfY[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
-#                by=c("ID","russian","region_en","economic_regions","federal_district","variable"), all.x=TRUE)
-#   
-#   dfZ <- dfZ[dfZ$variable == input$year_asso, ]
-#   
-#   max_x <- max(dfZ$value.x)
-#   max_y <- max(dfZ$value.y)
-#   
-#   ip1 <- sliderInput('axis_x', h5('Limit x-axis'), min=0, max=max_x, value=c(0,max_x))
-#   ip2 <- sliderInput('axis_y', h5('Limit y-axis'), min=0, max=max_y, value=c(0,max_y))
   ip2 <- h4("Adjust the plot ")
   ip3 <- selectInput('smooth_method', h5('Method for smoothing'), 
                      choices= c("no smoothing",
@@ -558,30 +535,8 @@ output$ui_adjust_asso_plot <- renderUI({
                                 "lm"
                                 ))
   
-  
-  
-                     
-#   ip3 <- selectInput('year_asso', h5('Year'), choices= year_list,
-#                      selected = year_list[1])
-  
   list(ip2,ip3)
 })
-
-
-# output$test <- renderTable({
-#   
-#   dfA <- datInput_att()
-#   
-#   dfX <- dfA[dfA$indicator_en == as.character(input$indicator_x),]
-#   dfY <- dfA[dfA$indicator_en == as.character(input$indicator_y),]
-#   dfZ <- merge(dfX[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
-#                dfY[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
-#                by=c("ID","russian","region_en","economic_regions","federal_district","variable"), all.x=TRUE)
-#   
-#   dfZ <- dfZ[dfZ$variable == input$year_asso, ]
-#   head(dfZ)
-#   
-# })
 
 
 
@@ -592,12 +547,12 @@ plot_asso <- function(x) {
     
   dfX <- dfA[dfA$indicator_en == as.character(input$indicator_x),]
   dfY <- dfA[dfA$indicator_en == as.character(input$indicator_y),]
-  dfZ <- merge(dfX[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
-               dfY[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
-               by=c("ID","russian","region_en","economic_regions","federal_district","variable"))
+  dfZ <- merge(dfX[c("ID","russian","region_en","federal_district","economic_regions","type_of_subject","indicator_ru","indicator_en","variable","value")],
+               dfY[c("ID","russian","region_en","federal_district","economic_regions","type_of_subject","indicator_ru","indicator_en","variable","value")],
+               by=c("ID","russian","region_en","economic_regions","federal_district","type_of_subject","variable"))
   
-  dfZ$value.x[dfZ$value.x == 0] <- NA
-  dfZ$value.y[dfZ$value.y == 0] <- NA
+#   dfZ$value.x[dfZ$value.x == 0] <- NA
+#   dfZ$value.y[dfZ$value.y == 0] <- NA
   dfZ <- dfZ[!is.na(dfZ$value.x),]
   dfZ <- dfZ[!is.na(dfZ$value.y),]
 
@@ -605,11 +560,8 @@ plot_asso <- function(x) {
   
   if (input$subset_region_asso == "economic_regions") dfZ <- dfZ[dfZ$economic_regions %in% input$subreg_economic_regions_asso,]
   if (input$subset_region_asso == "federal_district") dfZ <- dfZ[dfZ$federal_district %in% input$subreg_federal_district_asso,]
-  if (input$subset_region_asso == "region") dfZ <- dfZ[dfZ$region_en %in% c(input$subreg_region1_asso,
-                                                                       input$subreg_region2_asso,
-                                                                       input$subreg_region3_asso,
-                                                                       input$subreg_region4_asso,
-                                                                       input$subreg_region5_asso),]
+  if (input$subset_region_asso == "type_of_subject") dfZ <- dfZ[dfZ$type_of_subject %in% input$subreg_subject_asso,]
+  if (input$subset_region_asso == "region") dfZ <- dfZ[dfZ$region_en %in% input$subreg_region_asso,]
   
   
   if (input$subset_region_asso == "economic_regions") {
@@ -628,12 +580,19 @@ plot_asso <- function(x) {
     colScale <- scale_colour_manual(name = "Federal Districts",
                                     values = myColors)
   }
+  if (input$subset_region_asso == "type_of_subject") {
+    color_obj <- "factor(type_of_subject)"
+    #
+    names(myColors) <- levels(dfZ$type_of_subject)
+    library(ggplot2)
+    colScale <- scale_colour_manual(name = "type_of_subject",
+                                    values = myColors)
+  }
   if (input$subset_region_asso == "region") {
     color_obj <- "factor(region_en)"
     #
     library(ggplot2)
     library(RColorBrewer)
-    myColors <- brewer.pal(5,"Set1")
     colScale <- scale_colour_manual(name = "Regions",
                                     values = myColors)
   }
@@ -660,6 +619,8 @@ plot_asso <- function(x) {
     coord_cartesian(xlim=input$axis_x,ylim=input$axis_y) +
     colScale +
     theme_bw() +
+    labs(x=input$indicator_x,y=input$indicator_y) +
+    theme(axis.title = element_text(face = "bold", size = 14)) +
     theme(legend.position =  "top")
   )
   
@@ -676,23 +637,20 @@ plot_asso_all <- function(x) {
   
   dfX <- dfA[dfA$indicator_en == as.character(input$indicator_x),]
   dfY <- dfA[dfA$indicator_en == as.character(input$indicator_y),]
-  dfZ <- merge(dfX[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
-               dfY[c("ID","russian","region_en","federal_district","economic_regions","indicator_ru","indicator_en","variable","value")],
-               by=c("ID","russian","region_en","economic_regions","federal_district","variable"))
+  dfZ <- merge(dfX[c("ID","russian","region_en","federal_district","economic_regions","type_of_subject","indicator_ru","indicator_en","variable","value")],
+               dfY[c("ID","russian","region_en","federal_district","economic_regions","type_of_subject","indicator_ru","indicator_en","variable","value")],
+               by=c("ID","russian","region_en","economic_regions","federal_district","type_of_subject","variable"))
   
-  dfZ$value.x[dfZ$value.x == 0] <- NA
-  dfZ$value.y[dfZ$value.y == 0] <- NA
+#   dfZ$value.x[dfZ$value.x == 0] <- NA
+#   dfZ$value.y[dfZ$value.y == 0] <- NA
   dfZ <- dfZ[!is.na(dfZ$value.x),]
   dfZ <- dfZ[!is.na(dfZ$value.y),]
   
   
   if (input$subset_region_asso == "economic_regions") dfZ <- dfZ[dfZ$economic_regions %in% input$subreg_economic_regions_asso,]
   if (input$subset_region_asso == "federal_district") dfZ <- dfZ[dfZ$federal_district %in% input$subreg_federal_district_asso,]
-  if (input$subset_region_asso == "region") dfZ <- dfZ[dfZ$region_en %in% c(input$subreg_region1_asso,
-                                                                            input$subreg_region2_asso,
-                                                                            input$subreg_region3_asso,
-                                                                            input$subreg_region4_asso,
-                                                                            input$subreg_region5_asso),]
+  if (input$subset_region_asso == "type_of_subject") dfZ <- dfZ[dfZ$type_of_subject %in% input$subreg_subject_asso,]
+  if (input$subset_region_asso == "region") dfZ <- dfZ[dfZ$region_en %in% input$subreg_region_asso,]
   
   
   if (input$subset_region_asso == "economic_regions") {
@@ -711,12 +669,19 @@ plot_asso_all <- function(x) {
     colScale <- scale_colour_manual(name = "Federal Districts",
                                     values = myColors)
   }
+  if (input$subset_region_asso == "type_of_subject") {
+    color_obj <- "factor(type_of_subject)"
+    # 
+    names(myColors) <- levels(dfZ$type_of_subject)
+    library(ggplot2)
+    colScale <- scale_colour_manual(name = "type_of_subject",
+                                    values = myColors)
+  }
   if (input$subset_region_asso == "region") {
     color_obj <- "factor(region_en)"
     #
     library(ggplot2)
     library(RColorBrewer)
-    myColors <- brewer.pal(5,"Set1")
     colScale <- scale_colour_manual(name = "Regions",
                                     values = myColors)
   }
@@ -744,6 +709,8 @@ plot_asso_all <- function(x) {
       colScale + # ei toimi nyt kun makroalueiden mukainen väritys ei päällä (ei toimi korrelaatiofunktion takia)
       theme_bw() +
       theme(legend.position =  "top") +
+      labs(x=input$indicator_x,y=input$indicator_y) +
+      theme(axis.title = element_text(face = "bold", size = 14)) +
       facet_wrap(~variable, scale= "free")
     
     
@@ -864,6 +831,7 @@ output$ui_indicator_var4 <- renderUI({
 
 
 
+
 output$ui_year_para <- renderUI({
   dfA <- datInput_att()
   
@@ -886,42 +854,35 @@ output$ui_year_para <- renderUI({
   year_list <- unique(dwx$variable)
   
   ip3 <- selectInput('year_para', h5('Year'), choices= year_list,
-                     selected = year_list[1])
+                     selected = max(year_list) )
   
   list(ip3)
 })
+
 
 
 output$ui_region_para <- renderUI({
   dfA <- datInput_att()
   levels_federal_district <- as.character(levels(dfA$federal_district))[-1]
   levels_economic_regions <- as.character(levels(dfA$economic_regions))[-1]
+  levels_subject <- as.character(levels(dfA$type_of_subject))[-1]
   levels_regions <- as.character(levels(dfA$region_en))[-1]
   
   ip0 <- h3("Subset the regions")
   
   if (input$subset_region_para == "economic_regions") {
     ip1 <- checkboxGroupInput("subreg_economic_regions_para", h6("Select region:"),inline = TRUE, choices = levels_economic_regions, selected = levels_economic_regions)
-    ip2 <- ""
-    ip3 <- ""
-    ip4 <- ""
-    ip5 <- ""
   }
   if (input$subset_region_para == "federal_district") {
     ip1 <- checkboxGroupInput("subreg_federal_district_para", h6("Select region:"),inline = TRUE, choices = levels_federal_district, selected = levels_federal_district)
-    ip2 <- ""
-    ip3 <- ""
-    ip4 <- ""
-    ip5 <- ""
+  }
+  if (input$subset_region_para == "type_of_subject") {
+    ip1 <- checkboxGroupInput("subreg_subject_para", h6("Select type of subject:"),inline = TRUE, choices = levels_subject, selected = levels_subject)
   }
   if (input$subset_region_para == "region") {
-    ip1 <- selectInput("subreg_region1_para", h6("Select region 1:"), choices = c(NA,levels_regions), selected = levels_regions[2])
-    ip2 <- selectInput("subreg_region2_para",  h6("Select region 2:"), choices = c(NA,levels_regions), selected = levels_regions[3])
-    ip3 <- selectInput("subreg_region3_para",  h6("Select region 3:"), choices = c(NA,levels_regions), selected = levels_regions[4])
-    ip4 <- selectInput("subreg_region4_para",  h6("Select region 4:"), choices = c(NA,levels_regions), selected = levels_regions[5])
-    ip5 <- selectInput("subreg_region5_para",  h6("Select region 5:"), choices = c(NA,levels_regions), selected = levels_regions[6])
+    ip1 <- selectizeInput('subreg_region_para', h6("Select individual regions:"), choices = levels_regions, multiple = TRUE)
   }
-  list(ip1,ip2,ip3,ip4,ip5)
+  list(ip1)
 })
 
 
@@ -941,14 +902,14 @@ plot_para <- function(x) {
 #   df3 <- dfA[dfA$indicator_en == "Transport and communications", ]
   
   
-  dw1 <- dcast(df1, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
-  dw2 <- dcast(df2, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
-  dw3 <- dcast(df3, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
-  dw4 <- dcast(df4, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+  dw1 <- dcast(df1, region_en + variable + federal_district + economic_regions + type_of_subject ~ indicator_en, value.var="value")
+  dw2 <- dcast(df2, region_en + variable + federal_district + economic_regions + type_of_subject ~ indicator_en, value.var="value")
+  dw3 <- dcast(df3, region_en + variable + federal_district + economic_regions + type_of_subject ~ indicator_en, value.var="value")
+  dw4 <- dcast(df4, region_en + variable + federal_district + economic_regions + type_of_subject ~ indicator_en, value.var="value")
   
-  dwx <- merge(dw1,dw2,by=c("region_en","variable","federal_district","economic_regions"))
-  dwx <- merge(dwx,dw3,by=c("region_en","variable","federal_district","economic_regions"))
-  dwx <- merge(dwx,dw4,by=c("region_en","variable","federal_district","economic_regions"))
+  dwx <- merge(dw1,dw2,by=c("region_en","variable","federal_district","economic_regions","type_of_subject"))
+  dwx <- merge(dwx,dw3,by=c("region_en","variable","federal_district","economic_regions","type_of_subject"))
+  dwx <- merge(dwx,dw4,by=c("region_en","variable","federal_district","economic_regions","type_of_subject"))
   
   dfZ <- na.omit(dwx) 
   
@@ -958,11 +919,8 @@ plot_para <- function(x) {
   
   if (input$subset_region_para == "economic_regions") dfZ <- dfZ[dfZ$economic_regions %in% input$subreg_economic_regions_para,]
   if (input$subset_region_para == "federal_district") dfZ <- dfZ[dfZ$federal_district %in% input$subreg_federal_district_para,]
-  if (input$subset_region_para == "region") dfZ <- dfZ[dfZ$region_en %in% c(input$subreg_region1_para,
-                                                                            input$subreg_region2_para,
-                                                                            input$subreg_region3_para,
-                                                                            input$subreg_region4_para,
-                                                                            input$subreg_region5_para),]
+  if (input$subset_region_para == "type_of_subject") dfZ <- dfZ[dfZ$type_of_subject %in% input$subreg_subject_para,]  
+  if (input$subset_region_para == "region") dfZ <- dfZ[dfZ$region_en %in% input$subreg_region_para,]
   
     if (input$subset_region_para == "economic_regions") {
     color_obj <- "factor(economic_regions)"
@@ -980,40 +938,23 @@ plot_para <- function(x) {
     colScale <- scale_colour_manual(name = "Federal Districts",
                                     values = myColors)
   }
+if (input$subset_region_para == "type_of_subject") {
+  color_obj <- "factor(type_of_subject)"
+  #
+  names(myColors) <- levels(dfZ$type_of_subject)
+  library(ggplot2)
+  colScale <- scale_colour_manual(name = "type_of_subject",
+                                  values = myColors)
+}
   if (input$subset_region_para == "region") {
     color_obj <- "factor(region_en)"
     #
     library(ggplot2)
     library(RColorBrewer)
-    myColors <- brewer.pal(5,"Set1")
+    #myColors <- brewer.pal(5,"Set1")
     colScale <- scale_colour_manual(name = "Regions",
                                     values = myColors)
   }
-  #library(GGally)
-# Generate basic parallel coordinate plot
-# p <- ggparcoord(data = dfZ,                 
-#                 # Which columns to use in the plot
-#                 columns = 5:8,                 
-#                 # Which column to use for coloring data
-#                 groupColumn = 1,                 
-#                 # Allows order of vertical bars to be modified
-#                 order = 6,                
-#                 # Do not show points
-#                 showPoints = FALSE,                
-#                 # Turn on alpha blending for dense plots
-#                 alphaLines = 0.6,                
-#                 # Turn off box shading range
-#                 shadeBox = NULL,                
-#                 # Will normalize each column's values to [0, 1]
-#                 scale = "uniminmax"#, # try "std" also + boxplot = TRUE
-#                 ) +
-#                 theme_minimal() +  # Start with a basic theme 
-#                 scale_y_continuous(expand = c(0.02, 0.02)) + 
-#                 scale_x_discrete(expand = c(0.02, 0.02)) + # Decrease amount of margin around x, y values
-#                 theme(axis.ticks = element_blank()) + # Remove axis ticks and labels
-#                 theme(axis.title = element_blank()) + # Remove axis ticks and labels
-#                 theme(axis.text.y = element_blank()) + # Remove axis ticks and labels
-#                 theme(legend.position = "top") #+
 
 
 dfZZ <- dfZ
@@ -1024,12 +965,19 @@ dfZZ$ID <- 1:nrow(dfZZ)
 
 range01 <- function(x){(x-min(x))/(max(x)-min(x))}
 
-dfZZ[5] <- range01(dfZZ[5])
+
 dfZZ[6] <- range01(dfZZ[6])
 dfZZ[7] <- range01(dfZZ[7])
 dfZZ[8] <- range01(dfZZ[8])
+dfZZ[9] <- range01(dfZZ[9])
 
-df.x <- melt(dfZZ,id.vars=c("ID","region_en","federal_district","year"), 
+
+if (input$inverse_scale1 == TRUE) dfZZ[6] <- 1- dfZZ[6] 
+if (input$inverse_scale2 == TRUE) dfZZ[7] <- 1- dfZZ[7] 
+if (input$inverse_scale3 == TRUE) dfZZ[8] <- 1- dfZZ[8] 
+if (input$inverse_scale4 == TRUE) dfZZ[9] <- 1- dfZZ[9] 
+
+df.x <- melt(dfZZ,id.vars=c("ID","region_en","federal_district","economic_regions","type_of_subject","year"), 
              measure.vars = c(input$indicator_var1,
                               input$indicator_var2,
                               input$indicator_var3,
@@ -1047,7 +995,9 @@ thirddata <- df.x[df.x$variable == input$indicator_var3,]
 seconddata <- df.x[df.x$variable == input$indicator_var2,]
 begindata <- df.x[df.x$variable == input$indicator_var1,]
 
-p <- ggplot(df.x,aes(x=variable,y=value,colour=federal_district,group=ID))+
+
+
+p <- ggplot(df.x, aes_string(x="variable",y="value",group="ID",color=color_obj)) + 
   geom_line() +
   geom_text(data=enddata, 
             aes(x=4, y=value,label=region_en),
@@ -1065,13 +1015,9 @@ p <- ggplot(df.x,aes(x=variable,y=value,colour=federal_district,group=ID))+
   theme(text = element_text(family="Open Sans")) +
   theme(legend.position="top") +
   theme(legend.text=element_text(size=12)) +
-  guides(color=guide_legend(nrow=2))
+  guides(color=guide_legend(nrow=2)) +
+  colScale
   
-
-# px <- ggplot(df.x,aes(x=variable,y=value,colour=federal_district,group=ID))+
-#   geom_line() + facet_wrap(~year)
-#   theme(legend.position="none")
-
 
 print(p)
 
@@ -1089,20 +1035,24 @@ plot_para_all <- function(x) {
   df3 <- dfA[dfA$indicator_en == as.character(input$indicator_var3),]
   df4 <- dfA[dfA$indicator_en == as.character(input$indicator_var4),]
   
-  #   df1 <- dfA[dfA$indicator_en == "mining", ]
-  #   df2 <- dfA[dfA$indicator_en == "Education", ]
-  #   df4 <- dfA[dfA$indicator_en == "all", ]
-  #   df3 <- dfA[dfA$indicator_en == "Transport and communications", ]
+  dw1 <- dcast(df1, region_en + variable + federal_district + economic_regions + type_of_subject ~ indicator_en, value.var="value")
+  dw2 <- dcast(df2, region_en + variable + federal_district + economic_regions + type_of_subject ~ indicator_en, value.var="value")
+  dw3 <- dcast(df3, region_en + variable + federal_district + economic_regions + type_of_subject ~ indicator_en, value.var="value")
+  dw4 <- dcast(df4, region_en + variable + federal_district + economic_regions + type_of_subject ~ indicator_en, value.var="value")
+  
+  dwx <- merge(dw1,dw2,by=c("region_en","variable","federal_district","economic_regions","type_of_subject"))
+  dwx <- merge(dwx,dw3,by=c("region_en","variable","federal_district","economic_regions","type_of_subject"))
+  dwx <- merge(dwx,dw4,by=c("region_en","variable","federal_district","economic_regions","type_of_subject"))
   
   
-  dw1 <- dcast(df1, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
-  dw2 <- dcast(df2, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
-  dw3 <- dcast(df3, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
-  dw4 <- dcast(df4, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
-  
-  dwx <- merge(dw1,dw2,by=c("region_en","variable","federal_district","economic_regions"))
-  dwx <- merge(dwx,dw3,by=c("region_en","variable","federal_district","economic_regions"))
-  dwx <- merge(dwx,dw4,by=c("region_en","variable","federal_district","economic_regions"))
+#   dw1 <- dcast(df1, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+#   dw2 <- dcast(df2, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+#   dw3 <- dcast(df3, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+#   dw4 <- dcast(df4, region_en + variable + federal_district + economic_regions ~ indicator_en, value.var="value")
+#   
+#   dwx <- merge(dw1,dw2,by=c("region_en","variable","federal_district","economic_regions"))
+#   dwx <- merge(dwx,dw3,by=c("region_en","variable","federal_district","economic_regions"))
+#   dwx <- merge(dwx,dw4,by=c("region_en","variable","federal_district","economic_regions"))
   
   dfZ <- na.omit(dwx) 
   
@@ -1112,11 +1062,8 @@ plot_para_all <- function(x) {
   
   if (input$subset_region_para == "economic_regions") dfZ <- dfZ[dfZ$economic_regions %in% input$subreg_economic_regions_para,]
   if (input$subset_region_para == "federal_district") dfZ <- dfZ[dfZ$federal_district %in% input$subreg_federal_district_para,]
-  if (input$subset_region_para == "region") dfZ <- dfZ[dfZ$region_en %in% c(input$subreg_region1_para,
-                                                                            input$subreg_region2_para,
-                                                                            input$subreg_region3_para,
-                                                                            input$subreg_region4_para,
-                                                                            input$subreg_region5_para),]
+  if (input$subset_region_para == "type_of_subject") dfZ <- dfZ[dfZ$type_of_subject %in% input$subreg_subject_para,]  
+  if (input$subset_region_para == "region") dfZ <- dfZ[dfZ$region_en %in% input$subreg_region_para,]
   
   if (input$subset_region_para == "economic_regions") {
     color_obj <- "factor(economic_regions)"
@@ -1134,12 +1081,18 @@ plot_para_all <- function(x) {
     colScale <- scale_colour_manual(name = "Federal Districts",
                                     values = myColors)
   }
+  if (input$subset_region_para == "type_of_subject") {
+    color_obj <- "factor(type_of_subject)"
+    #
+    names(myColors) <- levels(dfZ$type_of_subject)
+    library(ggplot2)
+    colScale <- scale_colour_manual(name = "type_of_subject",
+                                    values = myColors)
+  }
   if (input$subset_region_para == "region") {
     color_obj <- "factor(region_en)"
     #
     library(ggplot2)
-    library(RColorBrewer)
-    myColors <- brewer.pal(5,"Set1")
     colScale <- scale_colour_manual(name = "Regions",
                                     values = myColors)
   }
@@ -1153,12 +1106,18 @@ plot_para_all <- function(x) {
   
   range01 <- function(x){(x-min(x))/(max(x)-min(x))}
   
-  dfZZ[5] <- range01(dfZZ[5])
-  dfZZ[6] <- range01(dfZZ[6])
-  dfZZ[7] <- range01(dfZZ[7])
-  dfZZ[8] <- range01(dfZZ[8])
+dfZZ[6] <- range01(dfZZ[6])
+dfZZ[7] <- range01(dfZZ[7])
+dfZZ[8] <- range01(dfZZ[8])
+dfZZ[9] <- range01(dfZZ[9])
+
+
+if (input$inverse_scale1 == TRUE) dfZZ[6] <- 1- dfZZ[6] 
+if (input$inverse_scale2 == TRUE) dfZZ[7] <- 1- dfZZ[7] 
+if (input$inverse_scale3 == TRUE) dfZZ[8] <- 1- dfZZ[8] 
+if (input$inverse_scale4 == TRUE) dfZZ[9] <- 1- dfZZ[9] 
   
-  df.x <- melt(dfZZ,id.vars=c("ID","region_en","federal_district","year"), 
+  df.x <- melt(dfZZ,id.vars=c("ID","region_en","federal_district","economic_regions","type_of_subject","year"), 
                measure.vars = c(input$indicator_var1,
                                 input$indicator_var2,
                                 input$indicator_var3,
@@ -1173,12 +1132,12 @@ plot_para_all <- function(x) {
   
   enddata <- df.x[df.x$variable == input$indicator_var4,]
   thirddata <- df.x[df.x$variable == input$indicator_var3,]
-  seconddata <- df.x[df.x$variable == input$indicator_var3,]
+  seconddata <- df.x[df.x$variable == input$indicator_var2,]
   begindata <- df.x[df.x$variable == input$indicator_var1,]
   
   
-  p <- ggplot(df.x,aes(x=variable,y=value,colour=federal_district,group=ID))+
-    geom_line() + facet_wrap(~year) +
+  p <- ggplot(df.x, aes_string(x="variable",y="value",group="ID",color=color_obj)) +
+    geom_line() + 
     geom_text(data=enddata, 
               aes(x=4, y=value,label=region_en),
               hjust=-.2,size=3.5,family="Open Sans") +
@@ -1195,12 +1154,12 @@ plot_para_all <- function(x) {
     theme(text = element_text(family="Open Sans")) +
     theme(legend.position="top") +
     theme(legend.text=element_text(size=12)) +
-    guides(color=guide_legend(nrow=2))
+    guides(color=guide_legend(nrow=2)) +
+    facet_wrap(~year) +
+    colScale
     
   
-  
-  
-  print(p)
+print(p)  
   
   
 
@@ -1218,7 +1177,7 @@ output$plot_para_all <- renderPlot({
   
 plot_para_all()
 
-  
+
 })
 
   

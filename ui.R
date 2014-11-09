@@ -38,15 +38,24 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
                                               uiOutput("ui_year_rel"),
                                               radioButtons("maps", h5("Show"), choices=c("Only line-plot"= "No",
                                                                                          "Map with line-plot"="Yes")),
-                                              uiOutput("ui_year_map"),
-                                          #    uiOutput("ui_adjust_axis"),
+                                              uiOutput("ui_year_map")
+                                              
+                                ),
+                                
+                                absolutePanel(id = "controls", class = "modal", fixed = TRUE, draggable = TRUE,
+                                              top = 160, left = 350, right = "auto", bottom = "auto",
+                                              width = 250, height = "auto",
+                                              
+                                              h3("Subset regions"),
                                               radioButtons("subset_region", h5("Scheme for subsetting regions"), 
                                                            choices=c("Economic Regions"="economic_regions",
                                                                      "Federal Districts"="federal_district",
+                                                                     "Type of Federal Subject"="type_of_subject",
                                                                      "Regions"="region")),                                              
                                               uiOutput("ui_region")
                                               
                                 ),
+                                
                                 uiOutput("small_plot")
                                 )),
                                 
@@ -107,21 +116,23 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
                                               uiOutput("ui_class_y"),
                                               uiOutput("ui_indicator_y"),
                                               uiOutput("ui_year_asso"),
-                                              uiOutput("ui_adjust_asso_plot"),
-                                              radioButtons("subset_region_asso", h5("Scheme for subsetting regions"), 
-                                                           choices=c("Economic Regions"="economic_regions",
-                                                                     "Federal Districts"="federal_district",
-                                                                     "Regions"="region")),
-                                              uiOutput("ui_region_asso")
-                                              
-                                              
-                                              
-              
-#                                              plotOutput("plot_small", width = 550))#,
-#                                               textOutput("test"),
-#                                               tableOutput("test"))
-                                              )
-
+                                              uiOutput("ui_adjust_asso_plot")
+                                              ),
+                            
+                            absolutePanel(id = "controls", class = "modal", fixed = TRUE, draggable = TRUE,
+                                          top = 160, left = 350, right = "auto", bottom = "auto",
+                                          width = 250, height = "auto",
+                                          
+                                          h3("Subset regions"),
+                                          radioButtons("subset_region_asso", h5("Scheme for subsetting regions"), 
+                                                       choices=c("Economic Regions"="economic_regions",
+                                                                 "Federal Districts"="federal_district",
+                                                                 "Type of Federal Subject"="type_of_subject",
+                                                                 "Regions"="region")),
+                                          uiOutput("ui_region_asso")
+                                          
+                            )
+                            
                            
                            )),
 
@@ -157,17 +168,23 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
                                               uiOutput("ui_indicator_var3"),
                                               uiOutput("ui_class_var4"),
                                               uiOutput("ui_indicator_var4"),
-                                              uiOutput("ui_year_para")
+                                              uiOutput("ui_year_para"),
+                                              checkboxInput("inverse_scale1", h6("Inverse scale1:"), value = FALSE),
+                                              checkboxInput("inverse_scale2", h6("Inverse scale2:"), value = FALSE),
+                                              checkboxInput("inverse_scale3", h6("Inverse scale3:"), value = FALSE),
+                                              checkboxInput("inverse_scale4", h6("Inverse scale4:"), value = FALSE)
                                               
                                 ),
                                 
                                 absolutePanel(id = "controls", class = "modal", fixed = TRUE, draggable = TRUE,
-                                              top = "auto", left = 350, right = "auto", bottom = 60,
-                                              width = 250, height = 450,
+                                              top = 160, left = 350, right = "auto", bottom = "auto",
+                                              width = 250, height = "auto",
                                               
+                                              h3("Subset regions"),
                                               radioButtons("subset_region_para", h5("Scheme for subsetting regions"), 
                                                            choices=c("Economic Regions"="economic_regions",
                                                                      "Federal Districts"="federal_district",
+                                                                     "Type of Federal Subject"="type_of_subject",
                                                                      "Regions"="region")),
                                               uiOutput("ui_region_para")
                                               

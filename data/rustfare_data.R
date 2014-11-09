@@ -1,7 +1,8 @@
 # # --------------------------- ##
 # # From rustfare
 # 
-# head(dfA)
+# 
+# dfA <- data.frame()
 # 
 # ## ----------------------------
 # # Infant mortality
@@ -164,6 +165,12 @@
 # dl$class <- "Living Standards"
 # 
 # dfA <- rbind(dfA,dl)
+# 
+# # save data for merging
+# df_rustfare <- dfA
+# save(df_rustfare, file="data/df_rustfare.rda")
+# rm(dfA)
+# rm(df_rustfare)
 # 
 # ## ----------------------------
 # # average_size_of_pensions

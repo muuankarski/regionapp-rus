@@ -16,7 +16,7 @@ save(map, file="data/map_adm1.rda")
 library(RCurl)
 GHurl <- getURL("https://raw.githubusercontent.com/muuankarski/data/master/russia/regionkey.csv")
 dat <- read.csv(text = GHurl)
-dat <-  dat[dat$ID > 0,]  # remove moscow city 
+# dat <-  dat[dat$ID > 0,]  # remove moscow city 
 dat <- dat[!is.na(dat$ID),] # Russian Federation
 
 save(dat, file="data/key_adm1.rda")
@@ -26,10 +26,34 @@ save(dat, file="data/key_adm1.rda")
 ###### 
 
 # attribute_Data
-dfA <- data.frame()
-source("data/rosstat_data.R")
-source("data/rustfare_data.R")
 
+source("data/rosstat_data.R") # if needed
+source("data/rustfare_data.R") # if needed
+source("data/qualitative_data.R") # if needed
+source("data/election_data.R") # if needed
+
+load("data/df_rosstat.rda")
+load("data/df_rustfare.rda")
+load("data/df_qualitative.rda")
+load("data/df_election.rda")
+load("data/df_socpol.rda")
+
+dfA <- rbind(df_rosstat,df_rustfare,df_qualitative,df_election,df_socpol)
+
+rm(df_rosstat)
+rm(df_rustfare)
+rm(df_qualitative)
+rm(df_election)
+rm(df_socpol)
+
+## --------------------------- ##
+# Harmonize the region names
+
+source("data/trim_region_names.R")
+# remove duplicates
+
+
+dfA <- dfA[!duplicated(dfA[c("region","variable","indicator_en")]),]
 
 ## --------------------------- ##
 # Write the file

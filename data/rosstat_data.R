@@ -1,6 +1,8 @@
 ## -------------------------------------------------------- ##
 ## Attribute data from Rosstat
 
+dfA <- data.frame()
+
 
 ## --------------------------- ##
 # Gross regional product
@@ -343,4 +345,100 @@ dl$class <- "Public sector wages"
 
 dfA <- rbind(dfA,dl)
 
+## ------------------------------------------------------------------------------------------ ##
+# Below subsistence minimum
+
+df <- read.csv("data/below_subsistence_minimum.csv", header=TRUE)
+library(reshape2)
+names(df)[3] <- "unit"
+df$unit <- "percent"
+dl <- melt(df, id.vars=c("indicator_ru","region","unit"))
+library(stringr)
+# as.character
+dl$indicator_ru <- as.character(dl$indicator_ru)
+dl$region <- as.character(dl$region)
+dl$variable <- as.character(dl$variable)
+# remove whitespace
+dl$region <- str_trim(dl$region)
+# remove X and dots
+dl$variable <- str_replace_all(dl$variable, "X","")
+dl$variable <- str_replace_all(dl$variable, "\\.00","")
+# variable to numeric
+dl$variable <- factor(dl$variable)
+dl$variable <- as.numeric(levels(dl$variable))[dl$variable]
+# value to numeric
+dl$value <- str_replace_all(dl$value, ",",".")
+dl$value <- factor(dl$value)
+dl$value <- as.numeric(levels(dl$value))[dl$value]
+# translation unique(dl$indicator_ru)
+dl$indicator_en[dl$indicator_ru == "Численность населения с денежными доходами ниже величины прожиточного минимума, в процентах от общей численности населения"] <- "The number of people with incomes below the subsistence level, as a percentage of the total population"
+# clean vars
+dl$value[dl$value == ""] <- NA
+#dl <- dl[!is.na(dl$value),]
+dl$indicator_en[dl$indicator_en == ""] <- NA
+dl$indicator_ru[dl$indicator_ru == ""] <- NA
+#dl <- dl[!is.na(dl$variable),]
+dl$variable[dl$variable == ""] <- NA
+dl <- na.omit(dl)
+
+# define unit
+dl$unit <- "percent"
+# define class
+dl$class <- "Living Standards"
+
+dfA <- rbind(dfA,dl)
+
+
+## ------------------------------------------------------------------------------------------ ##
+# subsistence minimum
+# Average pension
+df <- read.csv("data/subsistence_minimum.csv", header=TRUE)
+library(reshape2)
+dl <- melt(df, id.vars=c("region","unit"))
+library(stringr)
+# as.character
+dl$indicator_ru <- "Величина прожиточного минимума"
+dl$indicator_ru <- as.character(dl$indicator_ru)
+dl$region <- as.character(dl$region)
+dl$variable <- as.character(dl$variable)
+# remove whitespace
+dl$region <- str_trim(dl$region)
+# remove X and dots
+dl$variable <- str_replace_all(dl$variable, "X","")
+dl$variable <- str_replace_all(dl$variable, "\\.00","")
+# variable to numeric
+dl$variable <- factor(dl$variable)
+dl$variable <- as.numeric(levels(dl$variable))[dl$variable]
+# value to numeric
+dl$value <- str_replace_all(dl$value, ",",".")
+dl$value <- factor(dl$value)
+dl$value <- as.numeric(levels(dl$value))[dl$value]
+# translation unique(dl$indicator_ru)
+dl$indicator_en[dl$indicator_ru == "Величина прожиточного минимума"] <- "Subsistence minimum"
+# clean vars
+dl$value[dl$value == ""] <- NA
+#dl <- dl[!is.na(dl$value),]
+dl$indicator_en[dl$indicator_en == ""] <- NA
+dl$indicator_ru[dl$indicator_ru == ""] <- NA
+#dl <- dl[!is.na(dl$variable),]
+dl$variable[dl$variable == ""] <- NA
+dl <- na.omit(dl)
+
+# define unit
+dl$unit <- "roubles"
+# define class
+dl$class <- "Living Standards"
+
+# only 1998 onwards, rouble inflation
+dl <- dl[dl$variable >= 1998, ]
+
+
+dfA <- rbind(dfA,dl)
+
+
+# save data for merging
+df_rosstat <- dfA
+save(df_rosstat, file="data/df_rosstat.rda")
+rm(dfA)
+rm(df_rosstat)
 
