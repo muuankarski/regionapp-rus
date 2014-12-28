@@ -37,14 +37,18 @@ load("data/df_rustfare.rda")
 load("data/df_qualitative.rda")
 load("data/df_election.rda")
 load("data/df_socpol.rda")
+load("data/df_rlms.rda")
+load("data/df_obdx.rda")
+load("data/df_census.rda")
 
-dfA <- rbind(df_rosstat,df_rustfare,df_qualitative,df_election,df_socpol)
+dfA <- rbind(df_rosstat,df_rustfare,df_qualitative,df_election,df_socpol,df_rlms,df_obdx,df_census)
 
 rm(df_rosstat)
 rm(df_rustfare)
 rm(df_qualitative)
 rm(df_election)
 rm(df_socpol)
+rm(df_rlms)
 
 ## --------------------------- ##
 # Harmonize the region names
@@ -59,8 +63,6 @@ dfA <- dfA[!duplicated(dfA[c("region","variable","indicator_en")]),]
 # Write the file
 ## --------------------------- ##
 save(dfA, file="data/attribute_data.rda")
-
-
 
 
 

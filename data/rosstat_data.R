@@ -53,11 +53,64 @@ dl$variable[dl$variable == ""] <- NA
 dl <- na.omit(dl)
 
 # define unit
-dl$unit <- "million roubles"
+dl$unit <- "thousand roubles"
 # define class
 dl$class <- "Gross Regional Product"
 
 dfA <- rbind(dfA,dl)
+
+source("data/trim_region_names.R")
+
+dl <- dfA
+
+## Relative values - data from census 2010
+
+# 2010 census
+
+download.file(url = "http://www.gks.ru/free_doc/new_site/perepis2010/croc/Documents/Vol1/pub-01-04.xlsx", destfile = "data/pub-01-04.xlsx")
+library(gdata)
+dat <- read.xls("data/pub-01-04.xlsx", sheet = 1, header = FALSE, skip=5)
+dat <- dat[2:3]
+names(dat) <- c("region",
+                "value")
+
+dat$value <- factor(dat$value)
+dat$value <- as.numeric(levels(dat$value))[dat$value]
+dat <- dat[!is.na(dat$value),]
+
+dat$region <- as.character(dat$region) # trimmausta varten
+
+dfA <- dat
+
+source("data/trim_region_names.R")
+dat <- dfA
+dl2 <- merge(dl,dat,by="region")
+
+dl2$value <- dl2$value.x/dl2$value.y
+dl2$value.x <- NULL
+dl2$value.y <- NULL
+
+dl2$indicator_en <-  paste0(dl2$indicator_en," per capita")
+
+## sitten per capita in dollars (2012)
+
+# rouble rate for 2012 source: http://www.x-rates.com/average/?from=USD&to=RUB&amount=1.00&year=2012
+rate2012 <- (31.353674*31 + 29.793101*29 +
+               29.351398*31 + 29.481763*30 + 
+               30.903382*31 + 32.815221*30 + 
+               32.456826*31 + 31.934083*31 + 
+               31.370721*30 + 31.122351*31 + 
+               31.396497*30 + 30.712430*31) / 
+  (31+29+31+30+31+30+31+31+30+31+30+31)
+
+dl3 <- dl2
+
+dl3$value <- dl3$value / rate2012
+dl3$indicator_en <-  paste0(dl3$indicator_en," in US$ 2012")
+
+dfA <- rbind(dl,dl2,dl3)
+
+
 
 ## ------------------------------------------------------------------------------------------ ##
 # Average per capita casch income

@@ -211,10 +211,10 @@ plot_line <- function(x) {
     dfA$variable <- as.numeric(levels(dfA$variable))[dfA$variable]
   }
   
-#  if (input$plots == "line") {
-    dfA <- dfA[dfA$variable >= input$timespan[1],]
-    dfA <- dfA[dfA$variable <= input$timespan[2],]
-#  }  
+# #  if (input$plots == "line") {
+#     dfA <- dfA[dfA$variable >= input$timespan[1],]
+#     dfA <- dfA[dfA$variable <= input$timespan[2],]
+# #  }  
 
   
   if (input$subset_region == "economic_regions") dfA <- dfA[dfA$economic_regions %in% input$subreg_economic_regions,]
@@ -279,15 +279,16 @@ if (input$maps == "No") {
 }
 
 
-print(ggplot(dfA, aes_string(x="variable",y="value",group="region_en",color=color_obj)) +
+print(ggplot(dfA, aes_string(x="variable",y="value",label="value",group="region_en",color=color_obj)) +
           geom_point(size=3) + geom_line()  +
+        geom_text(size=3.5, hjust=-.5) +
          labs(title = as.character(input$indicator_en)) +
           theme_bw() +
           theme(text = element_text(family="Open Sans")) +
           # map year annotation
           line_map +
-          # ----------------------- #
-          # map relative annotation
+          #----------------------- #
+        #  map relative annotation
           line_100 +
           line_rel +
           
@@ -305,9 +306,9 @@ print(ggplot(dfA, aes_string(x="variable",y="value",group="region_en",color=colo
                                by=c("variable","region_en"), all.y=TRUE),
                     aes(x=variable, y = value, label=region_en),
                     hjust=.5,vjust=-1,size=4) +
-           coord_cartesian(xlim=c(min(dfA$variable-1),max(dfA$variable)+3),
-                           ylim=input$adjust_yaxis) +
-          colScale
+#           coord_cartesian(xlim=c(min(dfA$variable-1),max(dfA$variable)+3),
+#                           ylim=input$adjust_yaxis) #+
+           colScale
   )
 }
 
