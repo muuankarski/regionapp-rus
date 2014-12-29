@@ -105,7 +105,7 @@ rate2012 <- (31.353674*31 + 29.793101*29 +
 
 dl3 <- dl2
 
-dl3$value <- dl3$value / rate2012
+dl3$value <- dl3$value / rate2012 * 1000
 dl3$indicator_en <-  paste0(dl3$indicator_en," in US$ 2012")
 
 dfA <- rbind(dl,dl2,dl3)

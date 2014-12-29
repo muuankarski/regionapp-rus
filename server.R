@@ -278,10 +278,10 @@ if (input$maps == "No") {
   line_map <- geom_blank()
 }
 
-
+dfA$value <- round(dfA$value,1)
 print(ggplot(dfA, aes_string(x="variable",y="value",label="value",group="region_en",color=color_obj)) +
           geom_point(size=3) + geom_line()  +
-        geom_text(size=3.5, hjust=-.5) +
+         geom_text(size=3.5, hjust=-.5) +
          labs(title = as.character(input$indicator_en)) +
           theme_bw() +
           theme(text = element_text(family="Open Sans")) +
