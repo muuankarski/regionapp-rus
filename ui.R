@@ -27,18 +27,18 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
                                               width = 350, height = "auto",
                                               
                                               
-                                              h3("Customize the analysis"),
+                                              h3("Customize the analysis")
                                               #submitButton("Refresh! - Always Press TWICE!", icon("refresh")),
                                               
-                                              uiOutput("ui_class"),
-                                              uiOutput("ui_indicator"),
-                                              radioButtons("plots", h5("Look at"), choices=c("Absolute Time-series"="line",
-                                                                                              "Relative Time-series"="rela")),
-                                              uiOutput("ui_timespan"),
-                                              uiOutput("ui_year_rel"),
-                                              radioButtons("maps", h5("Show"), choices=c("Only line-plot"= "No",
-                                                                                         "Map with line-plot"="Yes")),
-                                              uiOutput("ui_year_map")
+                                              ,uiOutput("ui_class")
+                                              ,uiOutput("ui_indicator")
+                                              #,radioButtons("plots", h5("Look at"), choices=c("Absolute Time-series"="line",
+                                              #                                                "Relative Time-series"="rela"))
+                                              #,uiOutput("ui_timespan")
+                                              #,uiOutput("ui_year_rel"),
+                                              #radioButtons("maps", h5("Show"), choices=c("Only line-plot"= "No",
+                                              #                                           "Map with line-plot"="Yes")),
+                                              #uiOutput("ui_year_map")
                                               
                                 ),
                                 
@@ -174,21 +174,21 @@ shinyUI(navbarPage("Regions of Russia", id="nav",
                                               checkboxInput("inverse_scale3", h6("Inverse scale3:"), value = FALSE),
                                               checkboxInput("inverse_scale4", h6("Inverse scale4:"), value = FALSE)
                                               
-                                ),
+                                )#,
                                 
-                                absolutePanel(id = "controls", class = "modal", fixed = TRUE, draggable = TRUE,
-                                              top = 160, left = 350, right = "auto", bottom = "auto",
-                                              width = 250, height = "auto",
+#                                 absolutePanel(id = "controls", class = "modal", fixed = TRUE, draggable = TRUE,
+#                                               top = 160, left = 350, right = "auto", bottom = "auto",
+#                                               width = 250, height = "auto",
+#                                               
+#                                               h3("Subset regions"),
+#                                               radioButtons("subset_region_para", h5("Scheme for subsetting regions"), 
+#                                                            choices=c("Economic Regions"="economic_regions",
+#                                                                      "Federal Districts"="federal_district",
+#                                                                      "Type of Federal Subject"="type_of_subject",
+#                                                                      "Regions"="region"))#,
+#                                               #uiOutput("ui_region_para")
                                               
-                                              h3("Subset regions"),
-                                              radioButtons("subset_region_para", h5("Scheme for subsetting regions"), 
-                                                           choices=c("Economic Regions"="economic_regions",
-                                                                     "Federal Districts"="federal_district",
-                                                                     "Type of Federal Subject"="type_of_subject",
-                                                                     "Regions"="region")),
-                                              uiOutput("ui_region_para")
-                                              
-                                                            )
+                                                            #)
                                                                 
                             )
          

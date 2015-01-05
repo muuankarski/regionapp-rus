@@ -172,13 +172,3 @@
 # rm(dfA)
 # rm(df_rustfare)
 # 
-# ## ----------------------------
-# # average_size_of_pensions
-# # df <- GetRosstat("average_size_of_pensions", "region")
-# # dl <- df[c(1,3,4,7)]
-# # names(dl)[2] <- "variable"
-# # library(stringr)
-# # dl$unit <- "roubles"
-# # 
-# # dfA <- rbind(dfA,dl)
-# 
