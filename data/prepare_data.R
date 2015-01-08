@@ -31,49 +31,49 @@
 # source("data/rustfare_data.R") # if needed
 # source("data/qualitative_data.R") # if needed
 # source("data/election_data.R") # if needed
-# 
-# load("data/df_rosstat.rda")
-# load("data/df_rustfare.rda")
-# load("data/df_qualitative.rda")
-# load("data/df_election.rda")
-# load("data/df_socpol.rda")
-# load("data/df_rlms.rda")
-# load("data/df_obdx.rda")
-# load("data/df_census.rda")
-# 
-# dfA <- rbind(df_rosstat,df_rustfare,df_qualitative,df_election,df_socpol,df_rlms,df_obdx,df_census)
-# 
-# rm(df_rosstat)
-# rm(df_rustfare)
-# rm(df_qualitative)
-# rm(df_election)
-# rm(df_socpol)
-# rm(df_rlms)
-# 
-# ## --------------------------- ##
-# # Harmonize the region names
-# library(regioncoderus)
-# source("~/workspace/ropengov/regioncoderus/R/trim_region_names.R")
-# dfA$region <- trim_region_names_rus(dfA$region)
-# dfA$region_en <- regioncoderus(dfA$region, "region.name.russian","region.name.english")
-# 
-# # remove duplicates
-# dfA <- dfA[!duplicated(dfA[c("region","variable","indicator_en")]),]
-# 
-# # remove useless stuff
-# 
-# dfA <- dfA[dfA$region != "Сумма",]
-# dfA <- dfA[dfA$region != "Более аграрные регионы",]
-# dfA <- dfA[dfA$region != "социальное страхование",]
-# 
-# ## --------------------------- ##
-# # Write the file
-# ## --------------------------- ##
-# save(dfA, file="data/attribute_data.rda")
-# 
-# 
-# 
-# 
+
+load("data/df_rosstat.rda")
+load("data/df_rustfare.rda")
+load("data/df_qualitative.rda")
+load("data/df_election.rda")
+load("data/df_socpol.rda")
+load("data/df_rlms.rda")
+load("data/df_obdx.rda")
+load("data/df_census.rda")
+
+dfA <- rbind(df_rosstat,df_rustfare,df_qualitative,df_election,df_socpol,df_rlms,df_obdx,df_census)
+
+rm(df_rosstat)
+rm(df_rustfare)
+rm(df_qualitative)
+rm(df_election)
+rm(df_socpol)
+rm(df_rlms)
+
+## --------------------------- ##
+# Harmonize the region names
+library(regioncoderus)
+source("~/workspace/ropengov/regioncoderus/R/trim_region_names.R")
+dfA$region <- trim_region_names_rus(dfA$region)
+dfA$region_en <- regioncoderus(dfA$region, "region.name.russian","region.name.finnish")
+
+# remove duplicates
+dfA <- dfA[!duplicated(dfA[c("region","variable","indicator_en")]),]
+
+# remove useless stuff
+
+dfA <- dfA[dfA$region != "Сумма",]
+dfA <- dfA[dfA$region != "Более аграрные регионы",]
+dfA <- dfA[dfA$region != "социальное страхование",]
+
+## --------------------------- ##
+# Write the file
+## --------------------------- ##
+save(dfA, file="data/attribute_data.rda")
+# # 
+# # 
+# # 
+# # 
 # 
 # 
 # 
